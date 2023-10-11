@@ -74,7 +74,7 @@ _**Below is the results (Screenshot) of select statements from Athena showing th
 
 * `customer_landing` table:
 
-    <img src="./images/customer_landing.png"> 
+    <img src="./customer_landing.png"> 
 
 *  `accelerometer_landing` table: 
 
