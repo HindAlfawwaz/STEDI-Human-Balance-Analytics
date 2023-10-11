@@ -68,7 +68,7 @@ contains the following fields:
 
 _**There are two Glue tables for the two landing zones:**_ 
 * [customer_landing.sql](./customer_landing.sql)
-* [accelerometer_landing.sql](./accelerometer_landing.sql)
+* [acceleromter_landing.sql](./acceleromter_landing.sql)
 
 _**Below is the results (Screenshot) of select statements from Athena showing the customer landing, and accelerometer landing data:**_ 
 
