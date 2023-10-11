@@ -1,4 +1,4 @@
-#  STEDI Human Balance Analytics Project
+#  Data Pipelines with Airflow
 
 ## Project Introduction
 In this project, As a data engineer for the STEDI team, data lakehouse solution will be built for sensor data that trains a machine learning model.
@@ -6,116 +6,98 @@ In this project, As a data engineer for the STEDI team, data lakehouse solution 
 
 ## Project Details
 
-The STEDI Team has been hard at work developing a hardware STEDI Step Trainer that:
+A music streaming company, Sparkify, has decided that it is time to introduce more automation and monitoring to their data warehouse ETL pipelines and come to the conclusion that the best tool to achieve this is Apache Airflow.
 
-* trains the user to do a STEDI balance exercise;
-* and has sensors on the device that collect data to train a machine-learning algorithm to detect steps;
-* has a companion mobile app that collects customer data and interacts with the device sensors.
-STEDI has heard from millions of early adopters who are willing to purchase the STEDI Step Trainers and use them.
+They have decided to bring you into the project and expect you to create high grade data pipelines that are dynamic and built from reusable tasks, can be monitored, and allow easy backfills. They have also noted that the data quality plays a big part when analyses are executed on top the data warehouse and want to run tests against their datasets after the ETL steps have been executed to catch any discrepancies in the datasets.
 
-Several customers have already received their Step Trainers, installed the mobile application, and begun using them together to test their balance. The Step Trainer is just a motion sensor that records the distance of the object detected. The app uses a mobile phone accelerometer to detect motion in the X, Y, and Z directions.
+The source data resides in S3 and needs to be processed in Sparkify's data warehouse in Amazon Redshift. The source datasets consist of JSON logs that tell about user activity in the application and JSON metadata about the songs the users listen to.
 
-The STEDI team wants to use the motion sensor data to train a machine learning model to detect steps accurately in real-time. Privacy will be a primary consideration in deciding what data can be used.
 
-Some of the early adopters have agreed to share their data for research purposes. **Only these customers’ Step Trainer and accelerometer data should be used in the training data for the machine learning model.** 
+
+----- 
+This project will introduce you to the core concepts of Apache Airflow. To complete the project, you will need to create your own custom operators to perform tasks such as staging the data, filling the data warehouse, and running checks on the data as the final step.
+
+We have provided you with a project template that takes care of all the imports and provides four empty operators that need to be implemented into functional pieces of a data pipeline. The template also contains a set of tasks that need to be linked to achieve a coherent and sensible data flow within the pipeline.
+
+You'll be provided with a helpers class that contains all the SQL transformations. Thus, you won't need to write the ETL yourselves, but you'll need to execute it with your custom operators.
+
+
+## Prerequisites:
+Create an IAM User in AWS.
+Follow the steps on the page Create an IAM User in AWS in the lesson Data Pipelines.
+Configure Redshift Serverless in AWS.
+Follow the steps on the page Configure Redshift Serverless in the lesson Airflow and AWS.
+
+## Setting up Connections
+Connect Airflow and AWS
+Follow the steps on the page Connections - AWS Credentials in the lesson Airflow and AWS.
+Use the workspace provided on the page Project Workspace in this lesson.
+Connect Airflow to AWS Redshift Serverless
+Follow the steps on the page Add Airflow Connections to AWS Redshift in the lesson Airflow and AWS.
 
 
 
 
 ## Project Data 
-### 1. Customer Records** (from fulfillment and the STEDI website):
+ 1. Log data s3://udacity-dend/log_data
+ 2. Song Data  s3://udacity-dend/song_data
 
 
-contains the following fields:
-
-- serialnumber
-- sharewithpublicasofdate
-- birthday
-- registrationdate
-- sharewithresearchasofdate
-- customername
-- email
-- lastupdatedate
-- phone
-- sharewithfriendsasofdate
-
-### 2. Step Trainer Records (data from the motion sensor):
+## Steps \
+1. create your own S3 bucket using the AWS Cloudshell : 
+aws s3 mb s3://dend-hind/
 
 
-contains the following fields:
+2. Copy the data from the udacity bucket to the home cloudshell directory:
 
-- sensorReadingTime
-- serialNumber
-- distanceFromObject
+aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
+aws s3 cp s3://udacity-dend/song-data/ ~/song-data/ --recursive
 
+Copy the data from the home cloudshell directory to  my own bucket 
 
-### 3. Accelerometer Records (from the mobile app):
+aws s3 cp ~/log-data/ s3://dend-hind/log-data/ --recursive
+aws s3 cp ~/song-data/ s3://dend-hind/song-data/ --recursive
 
+List the data in your own bucket to be sure it copied over -- this is only an example:
 
-contains the following fields:
-
--timeStamp
--user
--x
--y
--z
+aws s3 ls s3://dend-hind/log-data/
+aws s3 ls s3://dend-hind/song-data/
 
 
-## Project Summary
-
-### Landing Zone
-
-
-_**There are two Glue tables for the two landing zones:**_ 
-* [customer_landing.sql](./customer_landing.sql)
-* [acceleromter_landing.sql](./acceleromter_landing.sql)
-
-_**Below is the results (Screenshot) of select statements from Athena showing the customer landing, and accelerometer landing data:**_ 
-
-* `customer_landing` table:
-
-    <img src="./customer_landing.png"> 
-
-*  `accelerometer_landing` table: 
-
-    <img src="./accelerometer_landing.png">
-
-_**Below screenshot showed record count check for each landing table: **_
-    <img src="./landing_Record_counts.png">
+### Airflow DAG overview
+![Alt Text](dag_overview.png)
 
 
-### Trusted and Curated Zone
+## Operators
+* Begin_execution & Stop_execution
 
- An IAM service Role needs to be created with grant access on the Glue Service to allow AWS Glue to to access S3 and other resources.
+Dummy operators representing DAG start and end point
+
+* Stage_events & Stage_songs
+
+Extract and Load data from S3 to Amazon Redshift
+
+* Load_songplays_fact_table & Load_*_dim_table
+
+Load and Transform data from staging to fact and dimension tables
+
+* Run_data_quality_checks
+
+Run data quality checks to ensure no empty tables
+
+
+## How to Run
+Create S3 bucket and copy data from source
+Set Up AWS and Airflow Configurations
+Run create_tables DAG to create tables in Redshift
+Run finaly_project DAG to trigger the ETL data pipeline
 
 
 
 
-_**Glue Job Scripts:**_ 
-* [customer_trusted.py](./customer_trusted.py)
-   Sanitize the Customer data from the Website (Landing Zone) and only store the Customer Records who agreed to share their data for research purposes (Trusted Zone) - creating a Glue Table called customer_trusted.
+## Create an IAM User awsuser in AWS
+Permissions - attach exiting policies:
 
-
-* [accelerometer_trusted.py](./accelerometer_trusted.py)
-  Sanitize the Accelerometer data from the Mobile App (Landing Zone) - and only store Accelerometer Readings from customers who agreed to share their data for research purposes (Trusted Zone) - creating a Glue Table called accelerometer_trusted.
-
-
-* [customer_curated.py](./customer_curated.py)
-Sanitize the Customer data (Trusted Zone) and create a Glue Table (Curated Zone) that only includes customers who have accelerometer data and have agreed to share their data for research called customers_curated.
-
-* [step_trainer_trusted.py](./step_trainer_trusted.py)
-Step Trainer trusted
-
-* [machine_learning_curated.py](./machine_learning_curated.py)
-Create an aggregated table that has each of the Step Trainer Readings, and the associated accelerometer reading data for the same timestamp, but only for customers who have agreed to share their data, and make a glue table called machine_learning_curated.
-
-
-_**Use Athena to query Customer and Accelerometer Trusted Glue Tables**_ 
-
-screenshot of customer_trusted
-<img src="./customer_trusted.png">
-
-below screebshot shows no records where shareWithResearchAsOfDate is null 
-<img src="./customer_trusted_null.png">
-
-
+* Administrator Access
+* AmazonRedshiftFullAccess
+* AmazonS3Full Access
