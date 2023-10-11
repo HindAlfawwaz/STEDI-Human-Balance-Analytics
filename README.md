@@ -14,13 +14,6 @@ The source data resides in S3 and needs to be processed in Sparkify's data wareh
 
 
 
------ 
-This project will introduce you to the core concepts of Apache Airflow. To complete the project, you will need to create your own custom operators to perform tasks such as staging the data, filling the data warehouse, and running checks on the data as the final step.
-
-We have provided you with a project template that takes care of all the imports and provides four empty operators that need to be implemented into functional pieces of a data pipeline. The template also contains a set of tasks that need to be linked to achieve a coherent and sensible data flow within the pipeline.
-
-You'll be provided with a helpers class that contains all the SQL transformations. Thus, you won't need to write the ETL yourselves, but you'll need to execute it with your custom operators.
-
 
 ## Prerequisites:
 Create an IAM User in AWS.
@@ -39,37 +32,43 @@ Follow the steps on the page Add Airflow Connections to AWS Redshift in the less
 
 
 ## Project Data 
- 1. Log data s3://udacity-dend/log_data
- 2. Song Data  s3://udacity-dend/song_data
+ 1. Log data `s3://udacity-dend/log_data`
+ 2. Song Data  `s3://udacity-dend/song_data`
 
 
-## Steps \
-1. create your own S3 bucket using the AWS Cloudshell : 
-aws s3 mb s3://dend-hind/
+## Steps 
+1. create your own S3 bucket using the AWS Cloudshell :
+    ```sh
+    aws s3 mb s3://dend-hind/
+    ```
 
 
-2. Copy the data from the udacity bucket to the home cloudshell directory:
+3. Copy the data from the udacity bucket to the home cloudshell directory:
 
-aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
-aws s3 cp s3://udacity-dend/song-data/ ~/song-data/ --recursive
+    ```
+    aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
+    aws s3 cp s3://udacity-dend/song-data/ ~/song-data/ --recursive
+    ```
 
 Copy the data from the home cloudshell directory to  my own bucket 
 
-aws s3 cp ~/log-data/ s3://dend-hind/log-data/ --recursive
-aws s3 cp ~/song-data/ s3://dend-hind/song-data/ --recursive
 
-List the data in your own bucket to be sure it copied over -- this is only an example:
+    ```
+    aws s3 cp ~/log-data/ s3://dend-hind/log-data/ --recursive
+    aws s3 cp ~/song-data/ s3://dend-hind/song-data/ --recursive
+    ```
+    
+List the data in your own bucket to be sure it copied over:
 
-aws s3 ls s3://dend-hind/log-data/
-aws s3 ls s3://dend-hind/song-data/
+    ```
+    aws s3 ls s3://dend-hind/log-data/
+    aws s3 ls s3://dend-hind/song-data/
+    ```
 
-
-### Airflow DAG overview
-![Alt Text](dag_overview.png)
 
 
 ## Operators
-* Begin_execution & Stop_execution
+* Begin_execution & Stop_execution 
 
 Dummy operators representing DAG start and end point
 
@@ -95,8 +94,8 @@ Run finaly_project DAG to trigger the ETL data pipeline
 
 
 
-## Create an IAM User awsuser in AWS
-Permissions - attach exiting policies:
+## Create an IAM User in AWS
+with below access:
 
 * Administrator Access
 * AmazonRedshiftFullAccess
